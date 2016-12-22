@@ -9,14 +9,13 @@ extern "C"
   #include "mbedtls/net.h"
   #include "mbedtls/debug.h"
   #include "mbedtls/ssl.h"
+  #include "mbedtls/ssl_cookie.h"
   #include "mbedtls/entropy.h"
   #include "mbedtls/ctr_drbg.h"
   #include "mbedtls/error.h"
   #include "mbedtls/certs.h"
 }
 
-// FIX: Some macros somewhere are messing with the "accept" and "write" methods
-// so I had to put underscores on them
 namespace fact
 {
     namespace mbedtls
@@ -93,6 +92,27 @@ namespace fact
         };
 
 
+
+        class CookieContext
+        {
+            mbedtls_ssl_cookie_ctx context;
+
+        public:
+            CookieContext() { mbedtls_ssl_cookie_init(&context); }
+
+            operator mbedtls_ssl_cookie_ctx&()
+            {
+                return context;
+            }
+
+            int setup(int (*f_rng)(void*, uint8_t*, size_t), void* p_rng)
+            {
+                return mbedtls_ssl_cookie_setup(&context, f_rng, p_rng);
+            }
+        };
+
+
+
         class X509Certificate
         {
           mbedtls_x509_crt certificate;
@@ -120,48 +140,60 @@ namespace fact
 
         class SSLConfig
         {
-          mbedtls_ssl_config config;
+            mbedtls_ssl_config config;
 
-        public:
-          SSLConfig() { mbedtls_ssl_config_init(&config); }
+            public:
+            SSLConfig() { mbedtls_ssl_config_init(&config); }
 
-          operator mbedtls_ssl_config&()
-          {
+            operator mbedtls_ssl_config&()
+            {
               return config;
-          }
+            }
 
-          int defaults(int endpoint, int transport, int preset)
-          {
+            int defaults(int endpoint, int transport, int preset)
+            {
               return mbedtls_ssl_config_defaults(&config, endpoint, transport, preset);
-          }
+            }
 
 
-          void caChain(mbedtls_x509_crt& ca_chain)
-          {
+            void caChain(mbedtls_x509_crt& ca_chain)
+            {
               mbedtls_ssl_conf_ca_chain(&config, &ca_chain, NULL);
-          }
+            }
 
-          void caChain(mbedtls_x509_crt& ca_chain, mbedtls_x509_crl& ca_crl)
-          {
+            void caChain(mbedtls_x509_crt& ca_chain, mbedtls_x509_crl& ca_crl)
+            {
               mbedtls_ssl_conf_ca_chain(&config, &ca_chain, &ca_crl);
-          }
+            }
 
 
-          void setRng(mbedtls_ctr_drbg_context& ctr_drbg)
-          {
+            void setRng(mbedtls_ctr_drbg_context& ctr_drbg)
+            {
               mbedtls_ssl_conf_rng(&config, mbedtls_ctr_drbg_random, &ctr_drbg);
-          }
+            }
 
-          int ownCert(mbedtls_x509_crt& cert, mbedtls_pk_context& pk)
-          {
+            int ownCert(mbedtls_x509_crt& cert, mbedtls_pk_context& pk)
+            {
               return mbedtls_ssl_conf_own_cert(&config, &cert, &pk);
-          }
+            }
 
-          /*
-          void configDebug(void(*)(void *, int, const char*, int, const char*) f_dbg, void* p_dbg)
-          {
+
+            void confDtlsCookies(mbedtls_ssl_cookie_write_t* f_cookie_write,
+                mbedtls_ssl_cookie_check_t* f_cookie_check, void* p_cookie)
+            {
+                mbedtls_ssl_conf_dtls_cookies(&config, f_cookie_write, f_cookie_check, p_cookie);
+            }
+
+            void cookieSetup()
+            {
+
+            }
+
+            /*
+            void configDebug(void(*)(void *, int, const char*, int, const char*) f_dbg, void* p_dbg)
+            {
             mbedtls_ssl_conf_dbg(&config, f_dbg, p_dbg);
-          }*/
+            }*/
         };
 
 
