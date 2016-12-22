@@ -16,6 +16,8 @@ extern "C"
   #include "mbedtls/certs.h"
 }
 
+#include "mbedtls/ssl_cookie.hpp"
+
 namespace fact
 {
     namespace mbedtls
@@ -88,26 +90,6 @@ namespace fact
                 const uint8_t* pwd = NULL, size_t pwdlen = 0)
             {
                 return mbedtls_pk_parse_key(&pk, buf, buflen, pwd, pwdlen);
-            }
-        };
-
-
-
-        class CookieContext
-        {
-            mbedtls_ssl_cookie_ctx context;
-
-        public:
-            CookieContext() { mbedtls_ssl_cookie_init(&context); }
-
-            operator mbedtls_ssl_cookie_ctx&()
-            {
-                return context;
-            }
-
-            int setup(int (*f_rng)(void*, uint8_t*, size_t), void* p_rng)
-            {
-                return mbedtls_ssl_cookie_setup(&context, f_rng, p_rng);
             }
         };
 
