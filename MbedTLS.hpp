@@ -10,8 +10,6 @@ extern "C"
 
   #include "mbedtls/net.h"
   #include "mbedtls/debug.h"
-  #include "mbedtls/ssl.h"
-  #include "mbedtls/ssl_cookie.h"
   #include "mbedtls/entropy.h"
   #include "mbedtls/ctr_drbg.h"
   #include "mbedtls/error.h"
@@ -111,7 +109,7 @@ namespace fact
 
             int ownCert(mbedtls_x509_crt& cert, mbedtls_pk_context& pk)
             {
-              return mbedtls_ssl_conf_own_cert(&config, &cert, &pk);
+                return mbedtls_ssl_conf_own_cert(&config, &cert, &pk);
             }
 
 
@@ -120,6 +118,14 @@ namespace fact
             {
                 mbedtls_ssl_conf_dtls_cookies(&config, f_cookie_write, f_cookie_check, p_cookie);
             }
+
+#if defined(MBEDTLS_SSL_CACHE_C)
+            // TODO:
+            void sessionCache()
+            {
+
+            }
+#endif
 
             void cookieSetup()
             {
