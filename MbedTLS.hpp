@@ -116,7 +116,18 @@ namespace fact
             void confDtlsCookies(mbedtls_ssl_cookie_write_t* f_cookie_write,
                 mbedtls_ssl_cookie_check_t* f_cookie_check, void* p_cookie)
             {
+                //mbedtls_ssl_cookie_write
                 mbedtls_ssl_conf_dtls_cookies(&config, f_cookie_write, f_cookie_check, p_cookie);
+            }
+
+            // TODO: clean up context, it's the one CookieContext uses for this
+            // scenario
+            void confDtlsCookies(void* cookie_ctx)
+            {
+                mbedtls_ssl_conf_dtls_cookies(&config,
+                    mbedtls_ssl_cookie_write,
+                    mbedtls_ssl_cookie_check,
+                    cookie_ctx);
             }
 
 #if defined(MBEDTLS_SSL_CACHE_C)
