@@ -44,6 +44,8 @@ namespace fact
             {
                 return mbedtls_pk_parse_key(&pk, buf, buflen, pwd, pwdlen);
             }
+
+            void free() { mbedtls_pk_free(&pk); }
         };
 
 
@@ -54,6 +56,7 @@ namespace fact
 
         public:
           X509Certificate() { mbedtls_x509_crt_init(&certificate); }
+
 
           operator mbedtls_x509_crt&()
           {
@@ -70,6 +73,8 @@ namespace fact
             {
                 return mbedtls_x509_crt_parse(&certificate, buf, buflen);
             }
+
+            void free() { mbedtls_x509_crt_free(&certificate); }
         };
 
 
@@ -113,16 +118,15 @@ namespace fact
             }
 
 
-            void confDtlsCookies(mbedtls_ssl_cookie_write_t* f_cookie_write,
+            void dtlsCookies(mbedtls_ssl_cookie_write_t* f_cookie_write,
                 mbedtls_ssl_cookie_check_t* f_cookie_check, void* p_cookie)
             {
-                //mbedtls_ssl_cookie_write
                 mbedtls_ssl_conf_dtls_cookies(&config, f_cookie_write, f_cookie_check, p_cookie);
             }
 
             // TODO: clean up context, it's the one CookieContext uses for this
             // scenario
-            void confDtlsCookies(void* cookie_ctx)
+            void dtlsCookies(mbedtls_ssl_cookie_ctx* cookie_ctx)
             {
                 mbedtls_ssl_conf_dtls_cookies(&config,
                     mbedtls_ssl_cookie_write,
@@ -138,16 +142,17 @@ namespace fact
             }
 #endif
 
+            void debug(void (*f_dbg)(void* ctx, int, const char*, int, const char*), void* p_dbg)
+            {
+                mbedtls_ssl_conf_dbg(&config, f_dbg, p_dbg);
+            }
+
             void cookieSetup()
             {
 
             }
 
-            /*
-            void configDebug(void(*)(void *, int, const char*, int, const char*) f_dbg, void* p_dbg)
-            {
-            mbedtls_ssl_conf_dbg(&config, f_dbg, p_dbg);
-            }*/
+            void free() { mbedtls_ssl_config_free(&config); }
         };
 
 
@@ -162,6 +167,8 @@ namespace fact
           {
             return entropy;
           }
+
+          void free() { mbedtls_entropy_free(&entropy); }
         };
 
 

@@ -23,7 +23,8 @@ class TimingDelayContext
 public:
     TimingDelayContext()
     {
-        mbedtls_timing_delay_context_init(&timer);
+        // oops, doesn't exit
+        //mbedtls_timing_delay_context_init(&timer);
     }
 
     operator mbedtls_timing_delay_context&()

@@ -25,6 +25,7 @@ class SSLContext
 public:
     SSLContext() { mbedtls_ssl_init(&context); }
 
+    void free() { mbedtls_ssl_free(&context); }
     void reset() { mbedtls_ssl_session_reset(&context); }
 
     int handshake()
@@ -53,11 +54,16 @@ public:
           NULL);
     }
 
-    void closeNotify()
+    int closeNotify()
     {
-        mbedtls_ssl_close_notify(&context);
+        return mbedtls_ssl_close_notify(&context);
     }
 
+
+    int read(uint8_t* buf, size_t len)
+    {
+        return mbedtls_ssl_read(&context, buf, len);
+    }
 
     int write(const uint8_t* buf, size_t len)
     {
@@ -72,6 +78,11 @@ public:
     {
         //mbedtls_timing_set_delay(); // some platforms have these presets
         return mbedtls_ssl_set_timer_cb(&context, p_timer, f_set_timer, f_get_timer);
+    }
+
+    int setClientTransportId(uint8_t* info, size_t ilen)
+    {
+        return mbedtls_ssl_set_client_transport_id(&context, info, ilen);
     }
 };
 

@@ -36,6 +36,8 @@ namespace mbedtls
         {
             return ctr_drbg;
         }
+
+        void free() { mbedtls_ctr_drbg_free(&ctr_drbg); }
     };
 }
 }
