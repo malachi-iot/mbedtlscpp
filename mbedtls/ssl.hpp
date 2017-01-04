@@ -33,6 +33,9 @@ public:
         return mbedtls_ssl_handshake(&context);
     }
 
+    // As per official documentation:
+    // No copy of the configuration context is made, it can be shared by many mbedtls_ssl_context structures.
+    // Modifying the conf structure after it has been used in this function is unsupported!
     int setup(mbedtls_ssl_config& conf)
     {
         return mbedtls_ssl_setup(&context, &conf);
@@ -46,12 +49,17 @@ public:
         mbedtls_ssl_set_bio(&context, p_bio, f_send, f_recv, f_recv_timeout);
     }
 
+    // Keep an eye on this.  I expect setting all 3 shouldn't be a problem,
+    // DTLS server examples do this.  mbedtls_ssl_set_bio does NOT implicitly
+    // set mbed net socket blocking or nonblocking, that must be done
+    // separately - thus my confidence that providing both blocking and
+    // nonblocking methods here shouldn't break anything
     void setBIO(mbedtls_net_context& bio)
     {
         mbedtls_ssl_set_bio(&context, &bio,
           mbedtls_net_send,
           mbedtls_net_recv,
-          NULL);
+          mbedtls_net_recv_timeout);
     }
 
     int closeNotify()
