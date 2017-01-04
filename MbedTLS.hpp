@@ -95,6 +95,40 @@ namespace fact
               return mbedtls_ssl_config_defaults(&config, endpoint, transport, preset);
             }
 
+            void readTimeout(uint32_t timeout)
+            {
+                mbedtls_ssl_conf_read_timeout(&config, timeout);
+            }
+
+            void handshakeTimeout(
+                uint32_t ms_min = MBEDTLS_SSL_DTLS_TIMEOUT_DFL_MIN, 
+                uint32_t ms_max = MBEDTLS_SSL_DTLS_TIMEOUT_DFL_MAX)
+            {
+                mbedtls_ssl_conf_handshake_timeout(
+                    &config,
+                    ms_min,
+                    ms_max
+                );
+            }
+
+            void renegotiation(bool enabled)
+            {
+                mbedtls_ssl_conf_renegotiation(&config, enabled ? 
+                    MBEDTLS_SSL_RENEGOTIATION_ENABLED :
+                    MBEDTLS_SSL_RENEGOTIATION_DISABLED);
+            }
+
+            void transport(int t)
+            {
+                mbedtls_ssl_conf_transport(&config, t);
+            }
+
+
+            void endpoint(int e)
+            {
+                mbedtls_ssl_conf_endpoint(&config, e);
+            }
+
 
             void caChain(mbedtls_x509_crt& ca_chain)
             {
