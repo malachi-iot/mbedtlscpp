@@ -25,6 +25,11 @@ class SSLContext
 public:
     SSLContext() { mbedtls_ssl_init(&context); }
 
+    operator mbedtls_ssl_context&()
+    {
+        return context;
+    }
+
     void free() { mbedtls_ssl_free(&context); }
     void reset() { mbedtls_ssl_session_reset(&context); }
 

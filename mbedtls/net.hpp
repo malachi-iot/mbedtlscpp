@@ -2,7 +2,11 @@
 
 extern "C"
 {
-  #include "mbedtls/net.h"
+#if MBEDTLS_VERSION_NUMBER > 0x02010000
+#include "mbedtls/net_sockets.h"
+#else
+#include "mbedtls/net.h"
+#endif
 }
 
 namespace fact
